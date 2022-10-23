@@ -14,11 +14,69 @@ public class TournamentService
 
         if (!VerifyConfig(tournamentConfig))
         {
-            throw new Exception("Must provide at least 2 strategies to run a tournament.");
+            throw new Exception("Invalid tournament config");
         }
 
-        Strategy agentA = tournamentConfig.strategies[0];
-        Strategy agentB = tournamentConfig.strategies[1];
+        int numberOfStrategies = tournamentConfig.strategies.Count;
+
+        // Initialize game protocolls list
+        List<GameProtocoll> gameProtocolls = new List<GameProtocoll> { };
+
+        // Initialize tournament payoff dictionary
+        Dictionary<string, int> tournamentPayoffs = new Dictionary<string, int>() { };
+        for (var i = 0; i < numberOfStrategies; i++)
+        {
+            tournamentPayoffs.Add(tournamentConfig.strategies[i].name, 0);
+        }
+
+        // Run the tournament
+        for (var i = 0; i < numberOfStrategies; i++)
+        {
+            for (var j = i; j < numberOfStrategies; j++)
+            {
+                Strategy agentA = tournamentConfig.strategies[i];
+                Strategy agentB = tournamentConfig.strategies[j];
+
+                GameProtocoll gameProtocoll = RunGame(tournamentConfig, agentA, agentB);
+                gameProtocolls.Add(gameProtocoll);
+
+                tournamentPayoffs[tournamentConfig.strategies[i].name] += gameProtocoll.GamePayoffOfAgentA;
+                tournamentPayoffs[tournamentConfig.strategies[j].name] += gameProtocoll.GamePayoffOfAgentB;
+            }
+        }
+
+        // Find the winners of the tournament
+        int maxPayoff = tournamentPayoffs.Values.Max();
+        List<int> winnerIndices = tournamentPayoffs.Values
+            .Select((strategy, index) => strategy == maxPayoff ? index : -1)
+            .Where(i => i != -1).ToList();
+        List<string> winners = tournamentConfig.strategies
+            .Where((strategy, index) => winnerIndices.Contains(index))
+            .Select(strategy => strategy.name).ToList();
+
+        return new TournamentResult
+        {
+            Winners = winners,
+            TournamentPayoffs = tournamentPayoffs,
+            GameProtocolls = gameProtocolls,
+        };
+    }
+
+    private bool VerifyConfig(TournamentConfig tournamentConfig)
+    {
+        if (tournamentConfig.strategies.Count() < 2)
+        {
+            return false;
+        }
+        if (tournamentConfig.rounds < 1)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    private GameProtocoll RunGame(TournamentConfig tournamentConfig, Strategy agentA, Strategy agentB)
+    {
 
         List<RoundProtocoll> RoundProtocolls = new List<RoundProtocoll> { };
 
@@ -64,20 +122,7 @@ public class TournamentService
 
         ConsoleLogProtocoll(gameProtocoll);
 
-        return new TournamentResult
-        {
-            winner = GamePayoffA == GamePayoffB ? null : (GamePayoffA > GamePayoffB ? agentA : agentB),
-            GameProtocolls = new List<GameProtocoll> { gameProtocoll },
-        };
-    }
-
-    private bool VerifyConfig(TournamentConfig tournamentConfig)
-    {
-        if (tournamentConfig.strategies.Count() < 2)
-        {
-            return false;
-        }
-        return true;
+        return gameProtocoll;
     }
 
     private void ConsoleLogProtocoll(GameProtocoll gameProtocoll)
