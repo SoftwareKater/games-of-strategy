@@ -2,8 +2,8 @@ namespace GOS.Models;
 
 public class Strategy
 {
-    public Guid id { get; set; } = new Guid();
-    public String author { get; set; }
-    public String name { get; set; }
-    public List<FiniteStateMachineState> states { get; set; }
+    public Guid Id { get; set; } = new Guid();
+    public String? Author { get; set; }
+    public String Name { get; set; } = new Guid().ToString();
+    public List<FiniteStateMachineState> States { get; set; }
 }

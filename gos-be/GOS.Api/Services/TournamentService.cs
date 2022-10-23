@@ -9,7 +9,7 @@ public class TournamentService
     {
         TournamentConfig tournamentConfig = new TournamentConfig
         {
-            strategies = GetMockStrategies()
+            Strategies = GetMockStrategies()
         };
 
         if (!VerifyConfig(tournamentConfig))
@@ -17,7 +17,7 @@ public class TournamentService
             throw new Exception("Invalid tournament config");
         }
 
-        int numberOfStrategies = tournamentConfig.strategies.Count;
+        int numberOfStrategies = tournamentConfig.Strategies.Count;
 
         // Initialize game protocolls list
         List<GameProtocoll> gameProtocolls = new List<GameProtocoll> { };
@@ -26,7 +26,8 @@ public class TournamentService
         Dictionary<string, int> tournamentPayoffs = new Dictionary<string, int>() { };
         for (var i = 0; i < numberOfStrategies; i++)
         {
-            tournamentPayoffs.Add(tournamentConfig.strategies[i].name, 0);
+            // this is a bad idea: use Id instead, because Name must not be unique
+            tournamentPayoffs.Add(tournamentConfig.Strategies[i].Name, 0);
         }
 
         // Run the tournament
@@ -34,14 +35,14 @@ public class TournamentService
         {
             for (var j = i; j < numberOfStrategies; j++)
             {
-                Strategy agentA = tournamentConfig.strategies[i];
-                Strategy agentB = tournamentConfig.strategies[j];
+                Strategy agentA = tournamentConfig.Strategies[i];
+                Strategy agentB = tournamentConfig.Strategies[j];
 
                 GameProtocoll gameProtocoll = RunGame(tournamentConfig, agentA, agentB);
                 gameProtocolls.Add(gameProtocoll);
 
-                tournamentPayoffs[tournamentConfig.strategies[i].name] += gameProtocoll.GamePayoffOfAgentA;
-                tournamentPayoffs[tournamentConfig.strategies[j].name] += gameProtocoll.GamePayoffOfAgentB;
+                tournamentPayoffs[tournamentConfig.Strategies[i].Name] += gameProtocoll.GamePayoffOfAgentA;
+                tournamentPayoffs[tournamentConfig.Strategies[j].Name] += gameProtocoll.GamePayoffOfAgentB;
             }
         }
 
@@ -50,9 +51,9 @@ public class TournamentService
         List<int> winnerIndices = tournamentPayoffs.Values
             .Select((strategy, index) => strategy == maxPayoff ? index : -1)
             .Where(i => i != -1).ToList();
-        List<string> winners = tournamentConfig.strategies
+        List<string> winners = tournamentConfig.Strategies
             .Where((strategy, index) => winnerIndices.Contains(index))
-            .Select(strategy => strategy.name).ToList();
+            .Select(strategy => strategy.Name).ToList();
 
         return new TournamentResult
         {
@@ -64,11 +65,11 @@ public class TournamentService
 
     private bool VerifyConfig(TournamentConfig tournamentConfig)
     {
-        if (tournamentConfig.strategies.Count() < 2)
+        if (tournamentConfig.Strategies.Count() < 2)
         {
             return false;
         }
-        if (tournamentConfig.rounds < 1)
+        if (tournamentConfig.Rounds < 1)
         {
             return false;
         }
@@ -83,38 +84,38 @@ public class TournamentService
         int StateOfAgentA = 0;
         int StateOfAgentB = 0;
 
-        for (int i = 0; i < tournamentConfig.rounds; i++)
+        for (int i = 0; i < tournamentConfig.Rounds; i++)
         {
             RoundProtocoll RoundProtocoll = new RoundProtocoll { };
 
             RoundProtocoll.StateA = StateOfAgentA;
             RoundProtocoll.StateB = StateOfAgentB;
 
-            MOVE agentAMove = agentA.states[StateOfAgentA].move;
-            MOVE agentBMove = agentB.states[StateOfAgentB].move;
+            MOVE agentAMove = agentA.States[StateOfAgentA].Move;
+            MOVE agentBMove = agentB.States[StateOfAgentB].Move;
 
-            RoundProtocoll.moveA = agentAMove;
-            RoundProtocoll.moveB = agentBMove;
+            RoundProtocoll.MoveA = agentAMove;
+            RoundProtocoll.MoveB = agentBMove;
 
-            int PayoffA = tournamentConfig.payoffMatrix[((int)agentAMove)][((int)agentBMove)];
-            int PayoffB = tournamentConfig.payoffMatrix[((int)agentBMove)][((int)agentAMove)];
+            int PayoffA = tournamentConfig.PayoffMatrix[((int)agentAMove)][((int)agentBMove)];
+            int PayoffB = tournamentConfig.PayoffMatrix[((int)agentBMove)][((int)agentAMove)];
 
-            RoundProtocoll.payoffA = PayoffA;
-            RoundProtocoll.payoffB = PayoffB;
+            RoundProtocoll.PayoffA = PayoffA;
+            RoundProtocoll.PayoffB = PayoffB;
 
-            StateOfAgentA = agentA.states[StateOfAgentA].stateTransition[((int)agentBMove)];
-            StateOfAgentB = agentB.states[StateOfAgentB].stateTransition[((int)agentAMove)];
+            StateOfAgentA = agentA.States[StateOfAgentA].StateTransition[((int)agentBMove)];
+            StateOfAgentB = agentB.States[StateOfAgentB].StateTransition[((int)agentAMove)];
 
             RoundProtocolls.Add(RoundProtocoll);
         }
 
-        int GamePayoffA = RoundProtocolls.Select(RoundProtocoll => RoundProtocoll.payoffA).Aggregate(0, (acc, x) => acc + x);
-        int GamePayoffB = RoundProtocolls.Select(RoundProtocoll => RoundProtocoll.payoffB).Aggregate(0, (acc, x) => acc + x);
+        int GamePayoffA = RoundProtocolls.Select(RoundProtocoll => RoundProtocoll.PayoffA).Aggregate(0, (acc, x) => acc + x);
+        int GamePayoffB = RoundProtocolls.Select(RoundProtocoll => RoundProtocoll.PayoffB).Aggregate(0, (acc, x) => acc + x);
 
         GameProtocoll gameProtocoll = new GameProtocoll
         {
-            NameOfAgentA = agentA.name,
-            NameOfAgentB = agentB.name,
+            NameOfAgentA = agentA.Name,
+            NameOfAgentB = agentB.Name,
             GamePayoffOfAgentA = GamePayoffA,
             GamePayoffOfAgentB = GamePayoffB,
             RoundProtocolls = RoundProtocolls,
@@ -169,63 +170,63 @@ public class TournamentService
         {
             new Strategy
             {
-                author = "SoftwareKater",
-                name = "Always Cooperate",
-                states = new List<FiniteStateMachineState>
+                Author = "SoftwareKater",
+                Name = "Always Cooperate",
+                States = new List<FiniteStateMachineState>
                 {
                     new FiniteStateMachineState
                     {
-                        move = MOVE.Cooperate,
-                        stateTransition = new List<int>{0, 0}
+                        Move = MOVE.Cooperate,
+                        StateTransition = new List<int>{0, 0}
                     }
                 }
             },
             new Strategy
             {
-                author = "SoftwareKater",
-                name = "Always Defect",
-                states = new List<FiniteStateMachineState>
+                Author = "SoftwareKater",
+                Name = "Always Defect",
+                States = new List<FiniteStateMachineState>
                 {
                     new FiniteStateMachineState
                     {
-                        move = MOVE.Defect,
-                        stateTransition = new List<int>{0, 0}
+                        Move = MOVE.Defect,
+                        StateTransition = new List<int>{0, 0}
                     }
                 }
             },
             new Strategy
             {
-                author = "SoftwareKater",
-                name = "Nice Tit for Tat",
-                states = new List<FiniteStateMachineState>
+                Author = "SoftwareKater",
+                Name = "Nice Tit for Tat",
+                States = new List<FiniteStateMachineState>
                 {
                     new FiniteStateMachineState
                     {
-                        move = MOVE.Cooperate,
-                        stateTransition = new List<int>{0, 1}
+                        Move = MOVE.Cooperate,
+                        StateTransition = new List<int>{0, 1}
                     },
                     new FiniteStateMachineState
                     {
-                        move = MOVE.Defect,
-                        stateTransition = new List<int>{0, 1}
+                        Move = MOVE.Defect,
+                        StateTransition = new List<int>{0, 1}
                     }
                 }
             },
             new Strategy
             {
-                author = "SoftwareKater",
-                name = "Nasty Tit for Tat",
-                states = new List<FiniteStateMachineState>
+                Author = "SoftwareKater",
+                Name = "Nasty Tit for Tat",
+                States = new List<FiniteStateMachineState>
                 {
                     new FiniteStateMachineState
                     {
-                        move = MOVE.Defect,
-                        stateTransition = new List<int>{1, 0}
+                        Move = MOVE.Defect,
+                        StateTransition = new List<int>{1, 0}
                     },
                     new FiniteStateMachineState
                     {
-                        move = MOVE.Cooperate,
-                        stateTransition = new List<int>{1, 0}
+                        Move = MOVE.Cooperate,
+                        StateTransition = new List<int>{1, 0}
                     }
                 }
             }
