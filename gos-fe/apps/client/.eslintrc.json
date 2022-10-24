@@ -13,7 +13,7 @@
           "error",
           {
             "type": "attribute",
-            "prefix": "gosFe",
+            "prefix": "gos",
             "style": "camelCase"
           }
         ],
@@ -21,7 +21,7 @@
           "error",
           {
             "type": "element",
-            "prefix": "gos-fe",
+            "prefix": "gos",
             "style": "kebab-case"
           }
         ]
