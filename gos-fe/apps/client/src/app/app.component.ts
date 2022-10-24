@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { TournamentService } from './tournament.service';
 
 @Component({
   selector: 'gos-fe-root',
@@ -6,5 +7,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'client';
+  public result?: any = this.tournamentService.tournamentResult;
+
+  constructor(private readonly tournamentService: TournamentService) {}
+
+  public runTournament() {
+    this.tournamentService.runTournament();
+  }
 }

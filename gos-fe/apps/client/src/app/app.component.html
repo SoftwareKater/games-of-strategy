@@ -1,1 +1,4 @@
 <h1>Games Of Strategy</h1>
+<button (click)="runTournament()">Run Tournament</button>
+
+<div *ngIf="result">Winner: {{ result.winners[0] }}</div>
