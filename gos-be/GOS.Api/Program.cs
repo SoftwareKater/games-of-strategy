@@ -9,18 +9,14 @@ services.AddSingleton<TournamentService, TournamentService>();
 services.AddControllers();
 
 // Register the NSwag Swagger services
-services.AddSwaggerDocument();
+services.AddOpenApiDocument();
 
 var app = builder.Build();
 
-app.UseStaticFiles();
-if (app.Environment.IsDevelopment())
-{
-    // Register the NSwag Swagger generator and the Swagger UI middlewares
-    // Register the middleware before UseRouting()
-    app.UseOpenApi();
-    app.UseSwaggerUi3();
-}
+// Register the NSwag Swagger generator and the Swagger UI middlewares
+// Register the middleware before UseRouting()
+app.UseOpenApi();
+app.UseSwaggerUi3();
 
 // app.UseFileServer();
 
@@ -28,10 +24,6 @@ if (app.Environment.IsDevelopment())
 
 // app.UseAuthorization();
 
-app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.MapControllers();
 
 app.Run();
