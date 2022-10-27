@@ -12,4 +12,12 @@
     <ProjectReference Include="..\GOS.Models\GOS.Models.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="NSwag.AspNetCore" Version="13.17.0" />
+    <PackageReference Include="NSwag.MSBuild" Version="13.17.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
 </Project>
